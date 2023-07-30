@@ -8,12 +8,18 @@ headers = {
 
 
 def get_cambridge_data(keyword):
+    keyword = keyword.lower()
     url = f"https://dictionary.cambridge.org/us/dictionary/english/{keyword}"
     html = requests.get(url, headers=headers, timeout=6)
 
     soup = BeautifulSoup(html.text, features="html.parser")
 
-    return soup
+    raw_sound = soup.find(attrs={"type": "audio/mpeg"})
+    url_sound = "https://dictionary.cambridge.org" + raw_sound.get("src")
+
+    response = requests.get(url_sound, headers=headers, timeout=6)
+    with open(f"sounds/{keyword}.mp3", "wb") as sound:
+        sound.write(response.content)
 
 
 def get_online_translator_data(keyword):
@@ -26,5 +32,5 @@ def get_online_translator_data(keyword):
 
 
 if __name__ == "__main__":
-    # print(get_cambridge_data(input().lower()))
+    get_cambridge_data(input().lower())
     # print(get_online_translator_data(input().lower()))
