@@ -21,6 +21,8 @@ def get_cambridge_data(keyword):
     with open(f"sounds/{keyword}.mp3", "wb") as sound:
         sound.write(response.content)
 
+    return url_sound
+
 
 def get_online_translator_data(keyword):
     keyword = keyword.lower()
@@ -77,6 +79,46 @@ def get_online_translator_data(keyword):
     return keyword_translation, english_example_list, russian_example_list
 
 
+def get_card_data(keyword):
+    keyword_for_card = keyword.title()
+
+    (
+        keyword_translation,
+        english_example_list,
+        russian_example_list,
+    ) = get_online_translator_data(keyword)
+
+    translation_for_card = []
+    for word in keyword_translation:
+        translation_for_card.append(f'<li class="word">{word}</li>')
+
+    translation_for_card = "<ul>" + "".join(translation_for_card) + "</ul>"
+
+    example_for_card = english_example_list[0]
+    example_translate_for_card = russian_example_list[0]
+
+    examples_for_card = [
+        f'<p>{exmpl_eng}<br><span class="ghost">{exmpl_ru}</span></p>'
+        for exmpl_eng, exmpl_ru in zip(
+            english_example_list[1:], russian_example_list[1:]
+        )
+    ]
+
+    examples_for_card = "".join(examples_for_card)
+    sound_url = get_cambridge_data(keyword)
+
+    return {
+        "keyword": keyword_for_card,
+        "example": example_for_card,
+        "example_translate": example_translate_for_card,
+        "examples": examples_for_card,
+        "translation": translation_for_card,
+        "sound": sound_url,
+    }
+
+
 if __name__ == "__main__":
     # get_cambridge_data(input().lower())
-    print(get_online_translator_data(input().lower()))
+    # print(get_online_translator_data(input().lower()))
+    for item in get_card_data(input().lower()).values():
+        print(item)
