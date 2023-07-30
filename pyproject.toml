@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "app"
+version = "0.1.0"
+description = ""
+authors = ["Anton Savenchuk <Anton.Savenchuk@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.dev-dependencies]
+black = "*"
+dlint = "*"
+pep8-naming = "*"
+flake8 = "*"
+flake8-annotations-complexity = "*"
+flake8-bandit = "*"
+flake8-black = "*"
+flake8-bugbear = "*"
+flake8-builtins = "*"
+flake8-class-attributes-order = "*"
+flake8-cognitive-complexity = "*"
+flake8-commas = "*"
+flake8-docstrings = "*"
+flake8-expression-complexity = "*"
+flake8-functions = "*"
+flake8-import-order = "*"
+flake8-length = "*"
+flake8-quotes = "*"
+flake8-variables-names = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

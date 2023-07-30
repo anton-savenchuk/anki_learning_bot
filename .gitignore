@@ -1,0 +1,24 @@
+# Editor directories
+.vscode/
+.history
+.idea/
+
+# Logs
+logs/
+*.log
+
+# Cache
+__pycache__/
+
+# Backup files
+*.bak
+
+# Environments
+env/
+venv/
+.env/
+.venv/
+.env
+.venv
+.env.*
+.venv.*
