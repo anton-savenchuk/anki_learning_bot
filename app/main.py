@@ -15,20 +15,27 @@ def get_soupe(url: str, keyword: str = "") -> BeautifulSoup:
     return BeautifulSoup(html.text, features="html.parser")
 
 
-def get_cambridge_data(keyword):
-    keyword = keyword.lower()
-    cambridge_data = get_soupe(
-        "https://dictionary.cambridge.org/us/dictionary/english/", keyword
+def get_translation(soup: BeautifulSoup) -> list:
+    """Get a keyword translation."""
+    keyword_translation: list = soup.find_all(
+        "span",
+        class_="result_only sayWord",
+        limit=3,
     )
 
-    raw_sound = cambridge_data.find(attrs={"type": "audio/mpeg"})
+    return [word.text for word in keyword_translation]
+
+
+def get_sound(soup: BeautifulSoup, keyword: str) -> tuple:
+    """Get a keyword sound and url for anki card."""
+    raw_sound = soup.find(attrs={"type": "audio/mpeg"})
     url_sound = "https://dictionary.cambridge.org" + raw_sound.get("src")
 
     response = requests.get(url_sound, headers=headers, timeout=6)
     with open(f"sounds/{keyword}.mp3", "wb") as sound:
         sound.write(response.content)
 
-    return url_sound
+    return f"sounds/{keyword}.mp3", url_sound
 
 
 def get_online_translator_data(keyword):
@@ -85,6 +92,26 @@ def get_online_translator_data(keyword):
     return keyword_translation, english_example_list, russian_example_list
 
 
+def get_keyword_data(keyword: str) -> dict:
+    """Get data from keyword."""
+    keyword = keyword.lower()
+    cambridge_data = get_soupe(
+        "https://dictionary.cambridge.org/us/dictionary/english/", keyword
+    )
+    online_translator_data = get_soupe(
+        "https://www.online-translator.com/translation/english-russian/", keyword
+    )
+    translation: list = get_translation(online_translator_data)
+    sound, sound_url = get_sound(cambridge_data, keyword)
+
+    return {
+        "keyword": keyword,
+        "translation": translation,
+        "sound": sound,
+        "sound_url": sound_url,
+    }
+
+
 def get_card_data(keyword):
     keyword_for_card = keyword.title()
 
@@ -111,7 +138,7 @@ def get_card_data(keyword):
     ]
 
     examples_for_card = "".join(examples_for_card)
-    sound_url = get_cambridge_data(keyword)
+    sound_url = get_sound(keyword)[1]
 
     return {
         "keyword": keyword_for_card,
@@ -124,7 +151,7 @@ def get_card_data(keyword):
 
 
 if __name__ == "__main__":
-    # get_cambridge_data(input().lower())
+    print(get_keyword_data(input().lower()))
     # print(get_online_translator_data(input().lower()))
-    for item in get_card_data(input().lower()).values():
-        print(item)
+    # for item in get_card_data(input().lower()).values():
+    #     print(item)
