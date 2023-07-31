@@ -4,6 +4,13 @@ from bs4 import BeautifulSoup
 import requests
 
 from _messages import messages
+from anki_connect import (
+    add_note,
+    create_deck,
+    create_model,
+    get_deck_names,
+    get_model_names,
+)
 
 
 headers = {
@@ -150,6 +157,10 @@ def get_card_data(keyword_data: dict) -> dict:
 
 
 if __name__ == "__main__":
+    anki_user_email = ""
+    deck_name = "English"
+    model_name = "CARDS"
+
     keyword = input().lower()
     flag, fail_message = check_keyword(keyword)
 
@@ -157,7 +168,12 @@ if __name__ == "__main__":
         keyword_data = get_keyword_data(keyword)
         card_data = get_card_data(keyword_data)
 
-        print(keyword_data, card_data)
+        if deck_name not in get_deck_names().get("result"):
+            create_deck(deck_name)
 
+        if model_name not in get_model_names().get("result"):
+            create_model(model_name)
+
+        add_note(deck_name, model_name, card_data)
     else:
         print(fail_message)
