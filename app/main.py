@@ -1,10 +1,42 @@
+import re
+
 from bs4 import BeautifulSoup
 import requests
+
+from _messages import messages
+
 
 headers = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
 }
+
+
+def check_keyword(keyword: str) -> tuple[bool, str]:
+    """Check keyword for errors."""
+    keyword = keyword.lower()
+    flag = True
+    if " " in keyword:
+        flag = False
+        fail_message = messages.get("only_one_word")
+    elif re.search(r"[^a-zA-Zа]", keyword):
+        flag = False
+        fail_message = messages.get("only_english_letters")
+    elif len(keyword) == 1:
+        flag = False
+        fail_message = messages.get("length_word")
+    else:
+        online_translator_data = get_soupe(
+            "https://www.online-translator.com/translation/english-russian/",
+            keyword,
+        )
+
+        flag = len(get_translation(online_translator_data)) >= 1
+        fail_message = (
+            messages.get("no_mistakes") if flag else messages.get("no_such_word")
+        )
+
+    return flag, fail_message
 
 
 def get_soupe(url: str, keyword: str = "") -> BeautifulSoup:
@@ -119,5 +151,13 @@ def get_card_data(keyword_data: dict) -> dict:
 
 if __name__ == "__main__":
     keyword = input().lower()
-    keyword_data = get_keyword_data(keyword)
-    card_data = get_card_data(keyword_data)
+    flag, fail_message = check_keyword(keyword)
+
+    if flag:
+        keyword_data = get_keyword_data(keyword)
+        card_data = get_card_data(keyword_data)
+
+        print(keyword_data, card_data)
+
+    else:
+        print(fail_message)
