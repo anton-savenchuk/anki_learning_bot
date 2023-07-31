@@ -11,12 +11,18 @@ from anki_connect import (
     get_deck_names,
     get_model_names,
 )
+import config
 
 
 headers = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
 }
+
+
+def check_admin_user(user_id: int) -> bool:
+    """Check if the user is an administrator."""
+    return user_id == config.ADMIN_ID
 
 
 def check_keyword(keyword: str) -> tuple[bool, str]:
