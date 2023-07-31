@@ -26,6 +26,29 @@ def get_translation(soup: BeautifulSoup) -> list:
     return [word.text for word in keyword_translation]
 
 
+def get_example_list(soup: BeautifulSoup, class_: str) -> list:
+    """Get examples list of keyword usage."""
+    raw_examples: list = soup.find(
+        "div",
+        id="topSamplesSelSource",
+    ).find_all(
+        "span",
+        class_=class_,
+        limit=3,
+    )
+
+    example_list: list = []
+    for example in raw_examples:
+        example = str(example)[len(f'<span class="{class_}">') : -len("</span>")]
+        example_list.append(
+            example.replace('<span class="samSource">', "")
+            .replace('<span class="sourceSample">', "<b>")
+            .replace("</span>", "</b>")
+        )
+
+    return example_list
+
+
 def get_sound(soup: BeautifulSoup, keyword: str) -> tuple:
     """Get a keyword sound and url for anki card."""
     raw_sound = soup.find(attrs={"type": "audio/mpeg"})
@@ -38,60 +61,6 @@ def get_sound(soup: BeautifulSoup, keyword: str) -> tuple:
     return f"sounds/{keyword}.mp3", url_sound
 
 
-def get_online_translator_data(keyword):
-    keyword = keyword.lower()
-    online_translator_data = get_soupe(
-        "https://www.online-translator.com/translation/english-russian/", keyword
-    )
-
-    raw_keyword_translation = online_translator_data.find_all(
-        "span",
-        class_="result_only sayWord",
-        limit=3,
-    )
-    keyword_translation = []
-    for word in raw_keyword_translation:
-        keyword_translation.append(word.text)
-
-    raw_english_examples = online_translator_data.find(
-        "div",
-        id="topSamplesSelSource",
-    ).find_all(
-        "span",
-        class_="samSource",
-        limit=3,
-    )
-
-    english_example_list = []
-    for example in raw_english_examples:
-        example = str(example)[24:-7]
-        english_example_list.append(
-            example.replace('<span class="samSource">', "")
-            .replace('<span class="sourceSample">', "<b>")
-            .replace("</span>", "</b>")
-        )
-
-    raw_russian_examples = online_translator_data.find(
-        "div",
-        id="topSamplesSelSource",
-    ).find_all(
-        "span",
-        class_="samTranslation",
-        limit=3,
-    )
-
-    russian_example_list = []
-    for example in raw_russian_examples:
-        example = str(example)[29:-7]
-        russian_example_list.append(
-            example.replace('<span class="samTranslation">', "")
-            .replace('<span class="sourceSample">', "<b>")
-            .replace("</span>", "</b>")
-        )
-
-    return keyword_translation, english_example_list, russian_example_list
-
-
 def get_keyword_data(keyword: str) -> dict:
     """Get data from keyword."""
     keyword = keyword.lower()
@@ -102,43 +71,41 @@ def get_keyword_data(keyword: str) -> dict:
         "https://www.online-translator.com/translation/english-russian/", keyword
     )
     translation: list = get_translation(online_translator_data)
+    examples: tuple = (
+        get_example_list(online_translator_data, "samSource"),
+        get_example_list(online_translator_data, "samTranslation"),
+    )
     sound, sound_url = get_sound(cambridge_data, keyword)
 
     return {
         "keyword": keyword,
         "translation": translation,
+        "examples": examples,
         "sound": sound,
         "sound_url": sound_url,
     }
 
 
-def get_card_data(keyword):
-    keyword_for_card = keyword.title()
+def get_card_data(keyword_data: dict) -> dict:
+    """Get anki card from keyword data."""
+    keyword_for_card = keyword_data.get("keyword").title()
+    translation_for_card: list = [
+        f'<li class="word">{word}</li>' for word in keyword_data.get("translation")
+    ]
+    translation_for_card: str = "<ul>" + "".join(translation_for_card) + "</ul>"
 
-    (
-        keyword_translation,
-        english_example_list,
-        russian_example_list,
-    ) = get_online_translator_data(keyword)
+    example_for_card = keyword_data.get("examples")[0][0]
+    example_translate_for_card = keyword_data.get("examples")[1][0]
 
-    translation_for_card = []
-    for word in keyword_translation:
-        translation_for_card.append(f'<li class="word">{word}</li>')
-
-    translation_for_card = "<ul>" + "".join(translation_for_card) + "</ul>"
-
-    example_for_card = english_example_list[0]
-    example_translate_for_card = russian_example_list[0]
-
-    examples_for_card = [
+    examples_for_card: list = [
         f'<p>{exmpl_eng}<br><span class="ghost">{exmpl_ru}</span></p>'
         for exmpl_eng, exmpl_ru in zip(
-            english_example_list[1:], russian_example_list[1:]
+            keyword_data.get("examples")[0][1:], keyword_data.get("examples")[1][1:]
         )
     ]
 
-    examples_for_card = "".join(examples_for_card)
-    sound_url = get_sound(keyword)[1]
+    examples_for_card: str = "".join(examples_for_card)
+    sound_url = keyword_data.get("sound_url")
 
     return {
         "keyword": keyword_for_card,
@@ -151,7 +118,6 @@ def get_card_data(keyword):
 
 
 if __name__ == "__main__":
-    print(get_keyword_data(input().lower()))
-    # print(get_online_translator_data(input().lower()))
-    # for item in get_card_data(input().lower()).values():
-    #     print(item)
+    keyword = input().lower()
+    keyword_data = get_keyword_data(keyword)
+    card_data = get_card_data(keyword_data)
