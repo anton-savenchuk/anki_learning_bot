@@ -7,14 +7,21 @@ headers = {
 }
 
 
-def get_cambridge_data(keyword):
-    keyword = keyword.lower()
-    url = f"https://dictionary.cambridge.org/us/dictionary/english/{keyword}"
+def get_soupe(url: str, keyword: str = "") -> BeautifulSoup:
+    """Get BeautifulSoup constructor."""
+    url = f"{url}{keyword}"
     html = requests.get(url, headers=headers, timeout=6)
 
-    soup = BeautifulSoup(html.text, features="html.parser")
+    return BeautifulSoup(html.text, features="html.parser")
 
-    raw_sound = soup.find(attrs={"type": "audio/mpeg"})
+
+def get_cambridge_data(keyword):
+    keyword = keyword.lower()
+    cambridge_data = get_soupe(
+        "https://dictionary.cambridge.org/us/dictionary/english/", keyword
+    )
+
+    raw_sound = cambridge_data.find(attrs={"type": "audio/mpeg"})
     url_sound = "https://dictionary.cambridge.org" + raw_sound.get("src")
 
     response = requests.get(url_sound, headers=headers, timeout=6)
@@ -26,12 +33,11 @@ def get_cambridge_data(keyword):
 
 def get_online_translator_data(keyword):
     keyword = keyword.lower()
-    url = f"https://www.online-translator.com/translation/english-russian/{keyword}"
-    html = requests.get(url, headers=headers, timeout=6)
+    online_translator_data = get_soupe(
+        "https://www.online-translator.com/translation/english-russian/", keyword
+    )
 
-    soup = BeautifulSoup(html.text, features="html.parser")
-
-    raw_keyword_translation = soup.find_all(
+    raw_keyword_translation = online_translator_data.find_all(
         "span",
         class_="result_only sayWord",
         limit=3,
@@ -40,7 +46,7 @@ def get_online_translator_data(keyword):
     for word in raw_keyword_translation:
         keyword_translation.append(word.text)
 
-    raw_english_examples = soup.find(
+    raw_english_examples = online_translator_data.find(
         "div",
         id="topSamplesSelSource",
     ).find_all(
@@ -58,7 +64,7 @@ def get_online_translator_data(keyword):
             .replace("</span>", "</b>")
         )
 
-    raw_russian_examples = soup.find(
+    raw_russian_examples = online_translator_data.find(
         "div",
         id="topSamplesSelSource",
     ).find_all(
