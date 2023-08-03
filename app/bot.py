@@ -9,21 +9,21 @@ from telegram.ext import (
     MessageHandler,
 )
 
-from _messages import messages
-from anki_connect import (
+from app import config
+from app.__main__ import (
+    check_admin_user,
+    check_keyword,
+    get_card_data,
+    get_keyword_data,
+)
+from app.anki_connect import (
     add_note,
     create_deck,
     create_model,
     get_deck_names,
     get_model_names,
 )
-import config
-from main import (
-    check_admin_user,
-    check_keyword,
-    get_card_data,
-    get_keyword_data,
-)
+from app.messages import messages
 
 
 logging.basicConfig(

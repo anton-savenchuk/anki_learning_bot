@@ -3,15 +3,15 @@ import re
 from bs4 import BeautifulSoup
 import requests
 
-from _messages import messages
-from anki_connect import (
+from app import config
+from app.anki_connect import (
     add_note,
     create_deck,
     create_model,
     get_deck_names,
     get_model_names,
 )
-import config
+from app.messages import messages
 
 
 headers = {
@@ -116,16 +116,17 @@ def get_keyword_data(keyword: str) -> dict:
         "https://www.online-translator.com/translation/english-russian/", keyword
     )
     translation: list = get_translation(online_translator_data)
-    examples: tuple = (
-        get_example_list(online_translator_data, "samSource"),
-        get_example_list(online_translator_data, "samTranslation"),
-    )
+
+    examples = get_example_list(online_translator_data, "samSource")
+    examples_translation = get_example_list(online_translator_data, "samTranslation")
+
     sound, sound_url = get_sound(cambridge_data, keyword)
 
     return {
         "keyword": keyword,
         "translation": translation,
         "examples": examples,
+        "examples_translation": examples_translation,
         "sound": sound,
         "sound_url": sound_url,
     }
@@ -139,13 +140,14 @@ def get_card_data(keyword_data: dict) -> dict:
     ]
     translation_for_card: str = "<ul>" + "".join(translation_for_card) + "</ul>"
 
-    example_for_card = keyword_data.get("examples")[0][0]
-    example_translate_for_card = keyword_data.get("examples")[1][0]
+    example_for_card = keyword_data.get("examples")[0]
+    example_translate_for_card = keyword_data.get("examples_translation")[0]
 
     examples_for_card: list = [
         f'<p>{exmpl_eng}<br><span class="ghost">{exmpl_ru}</span></p>'
         for exmpl_eng, exmpl_ru in zip(
-            keyword_data.get("examples")[0][1:], keyword_data.get("examples")[1][1:]
+            keyword_data.get("examples")[1:],
+            keyword_data.get("examples_translation")[1:],
         )
     ]
 
@@ -172,6 +174,7 @@ if __name__ == "__main__":
 
     if flag:
         keyword_data = get_keyword_data(keyword)
+        print(keyword_data)
         card_data = get_card_data(keyword_data)
 
         if deck_name not in get_deck_names().get("result"):

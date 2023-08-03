@@ -4,6 +4,9 @@ version = "0.1.0"
 description = ""
 authors = ["Anton Savenchuk <Anton.Savenchuk@gmail.com>"]
 readme = "README.md"
+packages = [
+    { include = "*", from = "app" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.11"

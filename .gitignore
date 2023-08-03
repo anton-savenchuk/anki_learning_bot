@@ -13,6 +13,10 @@ __pycache__/
 # Backup files
 *.bak
 
+# DB
+db.sqlite3
+.DS_Store
+
 # Environments
 env/
 venv/
