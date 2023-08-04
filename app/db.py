@@ -24,7 +24,7 @@ def create_keyword_data_table() -> None:
     sql = """
         CREATE TABLE IF NOT EXISTS keyword_data (
             id integer primary key,
-            user_id bigint unique,
+            user_id bigint,
             keyword text not null unique,
             translation text,
             examples text,
@@ -77,7 +77,7 @@ def insert_keyword_data(keyword_data: dict, user_id: int) -> None:
                 :sound,
                 :sound_url,
                 :user_id
-            )
+            );
         """
 
     with sqlite3.connect(config.SQLITE_DB_FILE) as db:
@@ -98,6 +98,35 @@ def insert_keyword_data(keyword_data: dict, user_id: int) -> None:
         )
 
         db.commit()
+
+
+def get_keyword_data_from_db(keyword: str, user_id: int) -> dict:
+    sql = """
+        SELECT
+            keyword,
+            translation,
+            sound
+        FROM
+            keyword_data
+        WHERE
+            keyword =:keyword
+            AND user_id =:user_id;
+        """
+    with sqlite3.connect(config.SQLITE_DB_FILE) as db:
+        cursor = db.cursor()
+        cursor.execute(
+            sql,
+            {"keyword": keyword, "user_id": user_id},
+        )
+
+        keyword, translation, sound, = cursor.fetchone()
+        translation = translation.split(", ")
+
+        return {
+            "keyword": keyword,
+            "translation": translation,
+            "sound": sound,
+        }
 
 
 def check_user_exists(user_id: int) -> bool:

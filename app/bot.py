@@ -10,6 +10,7 @@ from telegram.ext import (
 )
 
 from app import config
+from app import db
 from app.__main__ import (
     check_admin_user,
     check_keyword,
@@ -32,41 +33,68 @@ logging.basicConfig(
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    db.create_bot_user_table()
+    db.create_keyword_data_table()
+
+    bot_user = update.effective_user.id
+
+    if not db.check_user_exists(bot_user):
+        db.insert_user(bot_user)
+
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text=messages.get("start")
-        if check_admin_user(update.effective_user.id)
+        if check_admin_user(bot_user)
         else messages.get("private_bot"),
         parse_mode="html",
     )
 
 
 async def get_user_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if check_admin_user(update.effective_user.id):
+    bot_user = update.effective_user.id
+
+    if check_admin_user(bot_user):
         flag, fail_message = check_keyword(update.message.text)
 
         if flag:
-            deck_name = "English"
-            model_name = "CARDS"
-            keyword_data = get_keyword_data(update.message.text)
 
-            with open(keyword_data.get("sound"), "rb") as sound:
-                await context.bot.send_audio(
-                    chat_id=update.effective_chat.id,
-                    audio=sound,
-                    caption=f'Англ.: <b>{keyword_data.get("keyword")}</b>\n'
-                    f'Рус.: <b>{", ".join(keyword_data.get("translation"))}</b>',
-                    parse_mode="html",
+            keyword = update.message.text.lower()
+
+            if db.check_keyword_exists(keyword):
+                keyword_data = db.get_keyword_data_from_db(
+                    keyword, bot_user
                 )
+                with open(keyword_data.get("sound"), "rb") as sound:
+                    await context.bot.send_audio(
+                        chat_id=update.effective_chat.id,
+                        audio=sound,
+                        caption=f'Англ.: <b>{keyword_data.get("keyword")}</b>\n'
+                        f'Рус.: <b>{", ".join(keyword_data.get("translation"))}</b>',
+                        parse_mode="html",
+                    )
+            else:
+                keyword_data = get_keyword_data(keyword)
 
-            if deck_name not in get_deck_names().get("result"):
-                create_deck(deck_name)
+                with open(keyword_data.get("sound"), "rb") as sound:
+                    await context.bot.send_audio(
+                        chat_id=update.effective_chat.id,
+                        audio=sound,
+                        caption=f'Англ.: <b>{keyword_data.get("keyword")}</b>\n'
+                        f'Рус.: <b>{", ".join(keyword_data.get("translation"))}</b>',
+                        parse_mode="html",
+                    )
 
-            if model_name not in get_model_names().get("result"):
-                create_model(model_name)
+                deck_name = "English"
+                if deck_name not in get_deck_names().get("result"):
+                    create_deck(deck_name)
 
-            card_data = get_card_data(keyword_data)
-            add_note(deck=deck_name, model=model_name, note=card_data)
+                model_name = "CARDS"
+                if model_name not in get_model_names().get("result"):
+                    create_model(model_name)
+
+                db.insert_keyword_data(keyword_data, bot_user)
+                card_data = get_card_data(keyword_data)
+                add_note(deck=deck_name, model=model_name, note=card_data)
         else:
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
