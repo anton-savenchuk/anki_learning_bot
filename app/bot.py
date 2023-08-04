@@ -57,11 +57,10 @@ async def get_user_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         flag, fail_message = check_keyword(update.message.text)
 
         if flag:
-
             keyword = update.message.text.lower()
 
             if db.check_keyword_exists(keyword):
-                keyword_data = db.get_keyword_data_from_db(
+                keyword_data = db.get_keyword_data(
                     keyword, bot_user
                 )
                 with open(keyword_data.get("sound"), "rb") as sound:

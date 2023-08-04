@@ -133,7 +133,7 @@ def create_model(model_name: str) -> dict:
     )
 
 
-def add_note(deck: str, model: str, note: tuple) -> int:
+def add_note(deck: str, model: str, note: dict) -> int:
     """Create a note using the given deck and model, with the provided
     field values and tags.
 

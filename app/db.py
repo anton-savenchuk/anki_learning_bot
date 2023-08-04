@@ -100,7 +100,7 @@ def insert_keyword_data(keyword_data: dict, user_id: int) -> None:
         db.commit()
 
 
-def get_keyword_data_from_db(keyword: str, user_id: int) -> dict:
+def get_keyword_data(keyword: str, user_id: int) -> dict:
     sql = """
         SELECT
             keyword,
