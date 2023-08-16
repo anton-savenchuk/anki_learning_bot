@@ -1,12 +1,12 @@
 # Telegram bot for learning English words using [Anki](https://apps.ankiweb.net/) cards
 
-[![[anki_logo.png|240]]](https://apps.ankiweb.net/)
+<a href="https://apps.ankiweb.net/"><img src="anki_logo.png" width="240" ></a>
 
 ## For example
-
-![[anki_example.png|640]]
-![[anki_example_translation.png|640]]
-
+<div align="center">
+  <img src="anki_example.png" width="640" >
+  <img src="anki_example_translation.png" width="640" >
+</div>
 
 ## Bot Commands:
 
