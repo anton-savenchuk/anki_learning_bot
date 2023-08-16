@@ -1,0 +1,29 @@
+version: '3.8'
+
+volumes:
+  bot_data:
+  desktop_data:
+
+services:
+  anki-desktop:
+    build:
+      context: anki
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+      - 8765:8765  # Anki Connect port
+    container_name: anki-desktop
+    volumes:
+      - desktop_data:/config
+    restart: always
+
+  anki-bot:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    depends_on:
+      - anki-desktop
+    container_name: anki-bot
+    volumes:
+      - bot_data:/opt/anki_learning_bot/app/_data
+    restart: always

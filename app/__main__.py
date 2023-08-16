@@ -100,10 +100,10 @@ def get_sound(soup: BeautifulSoup, keyword: str) -> tuple:
     url_sound = "https://dictionary.cambridge.org" + raw_sound.get("src")
 
     response = requests.get(url_sound, headers=headers, timeout=6)
-    with open(f"sounds/{keyword}.mp3", "wb") as sound:
+    with open(f"_data/sounds/{keyword}.mp3", "wb") as sound:
         sound.write(response.content)
 
-    return f"sounds/{keyword}.mp3", url_sound
+    return f"_data/sounds/{keyword}.mp3", url_sound
 
 
 def get_keyword_data(keyword: str) -> dict:

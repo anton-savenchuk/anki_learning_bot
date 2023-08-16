@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# loop to keep the application running even when it is closed
+while true; do
+    /usr/local/share/anki/anki
+    sleep 2
+done

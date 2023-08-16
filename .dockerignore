@@ -8,7 +8,7 @@ logs/
 *.log
 
 # Cache
-__pycache__/
+*/__pycache__/
 
 # Backup files
 *.bak
@@ -22,10 +22,14 @@ env/
 venv/
 .env/
 .venv/
-.env
-.venv
-.env.*
-.venv.*
 
 # Others
-docker-compose.*.yml
+.git
+.github
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.*
+tests/
+anki/
+setup.cfg
