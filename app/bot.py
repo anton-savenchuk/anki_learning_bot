@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 COMMAND_HANDLERS = {
     "start": handlers.start,
+    "sync": handlers.get_anki_sync,
 }
 
 

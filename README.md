@@ -1,8 +1,9 @@
-# Telegram bot for learning English words using [Anki](https://apps.ankiweb.net/) cards
+# Telegram bot for learning English words using [Anki](https://apps.ankiweb.net/) cards.
 
 <a href="https://apps.ankiweb.net/"><img src="anki_logo.png" width="240" ></a>
 
 ## For example
+
 <div align="center">
   <img src="anki_example.png" width="640" >
   <img src="anki_example_translation.png" width="640" >
@@ -11,6 +12,7 @@
 ## Bot Commands:
 
 - `/start` — start message
+- `/sync` — sync with AnkiWeb
 
 
 ## Instructions
@@ -25,7 +27,7 @@ Create a file called `.env` in the `app` application folder with a environment v
 echo "TELEGRAM_BOT_TOKEN = '<your_bot_token_id>'" > app/.env
 ```
 
-and `ADMIN_ID` variable from your telegram user id.
+and `ADMIN_ID` variable from your telegram user id, one of the ways you can obtain those ids is using [userinfobot](https://telegram.me/userinfobot).
 ```bash
 echo "ADMIN_ID" = '<your_telegram_user_id>' >> app/.env
 ```
@@ -46,7 +48,7 @@ The application is available via VNC on port **3000**.
 
 Open http://127.0.0.1:3000
 
-To synchronize anki, add-ons such as Anki-Connect are used. The application is accessible via a web interface connected to port **8765**.
+To synchronize anki, add-ons such as [Anki-Connect](https://ankiweb.net/shared/info/2055492159) are used. The application is accessible via a web interface connected to port **8765**.
 
 Be aware that due to the design of Anki, you cannot run two different clients with same account at the same time.
 
@@ -63,6 +65,10 @@ Anki must be kept running in the background in order for other applications to b
 ## Anki-desktop sync setup
 
 `User 1` is the default Anki user, to sync your cards with ankiweb, click sync button, enter your login and password.
+For correct synchronization via telegram open the `Syncing` dialog by selecting `Tools` | `Preferences`, uncheck the boxes next to:
+- `"Automatically sync on profile open/close"`
+- `"Periodically sync media"`
+- `"On next sync, force changes in one direction"`
 
 
 ## Enjoy using it...

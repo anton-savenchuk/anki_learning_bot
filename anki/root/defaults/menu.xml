@@ -8,7 +8,7 @@
         </item>
         <item label="AnkiDesktop">
             <action name="Execute">
-                <command>/usr/local/share/anki/anki</command>
+                <command>/usr/local/bin/anki</command>
             </action>
         </item>
     </menu>
