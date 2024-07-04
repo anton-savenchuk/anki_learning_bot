@@ -4,9 +4,10 @@
 
 ## For example
 
-<div align="center">
-  <img src="anki_example.png" width="640" >
-  <img src="anki_example_translation.png" width="640" >
+<div align="center" width="100%">
+    <img width="640" src="telegram_bot_example.png"><br>
+    <img width="640" src="anki_example.png"><br>
+    <img width="640" src="anki_example_translation.png">
 </div>
 
 ## Bot Commands:
